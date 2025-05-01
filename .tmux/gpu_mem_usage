@@ -1,0 +1,23 @@
+#!/usr/bin/env bash
+
+print_gpu_usage() {
+    function getGPUUsage() {
+        gpuUsage=($(nvidia-smi | sed -nr 's/.*\s([0-9]+)MiB\s*\/\s*([0-9]+)MiB.*/\1 \2/p'  | awk -v format="%2.f\n" '{printf format, 100*$1/$2}'))
+    }
+    getGPUUsage
+    gpuUsage=("${gpuUsage[@]/%/%}")
+    
+    function join_by { local IFS="$1"; shift; echo "$*"; }
+    gpuUsage=`join_by " " ${gpuUsage[@]}`
+    if [ -z "$gpuUsage" ]; then
+    echo "-"
+    else
+    echo "Mem: $gpuUsage"
+    fi
+}
+
+main() {
+  print_gpu_usage
+}
+
+main
